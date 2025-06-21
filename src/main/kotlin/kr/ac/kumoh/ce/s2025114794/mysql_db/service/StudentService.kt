@@ -29,7 +29,7 @@ class StudentServiceImpl(
 ) : StudentService {
 
     // ----------------------------- 학적
-    override fun getProfile(sno: String) = studentRepo.findById(sno).orElseThrow().let {
+    override fun getProfile(sno: String) = studentRepo.findWithDepartment(sno)?.let {
         StudentDto.Profile(
             sno = it.sno,
             sname = it.sname,
@@ -38,7 +38,7 @@ class StudentServiceImpl(
             year = it.year ?: 1,
             phone = it.phone
         )
-    }
+    } ?: throw IllegalArgumentException("학생 없음: $sno")
 
     // ----------------------------- 시간표
     override fun getTimetable(sno: String, year: Int, semester: Int): List<StudentDto.TimetableEntry> {

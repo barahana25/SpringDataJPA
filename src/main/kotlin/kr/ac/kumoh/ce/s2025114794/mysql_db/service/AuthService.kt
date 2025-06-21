@@ -37,8 +37,6 @@ class AuthServiceImpl(
     // -------------------------------------------------- 로그인
     override fun login(req: AuthDto.LoginRequest): AuthDto.LoginResponse {
         val (id, rawPw) = req
-        println(id)
-        println(rawPw)
 
         // 1) 계정 조회 + 역할 판정
         val (storedPw, role) = when {

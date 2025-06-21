@@ -31,10 +31,9 @@ class ProfessorServiceImpl(
 
     // -------------------------------------------------- 학생 검색
     override fun searchStudents(pno: String, keyword: String): List<ProfessorDto.StudentInfo> {
-        val deptId = professorRepo.findById(pno).orElseThrow().department!!.deptId
-        return studentRepo.findAll().filter {
-            it.department?.deptId == deptId && (it.sno.contains(keyword) || it.sname.contains(keyword))
-        }.map {
+        val deptId = professorRepo.findWithDepartment(pno)?.department?.deptId
+            ?: throw IllegalArgumentException("교수 없음: $pno")
+        return studentRepo.searchByDepartmentAndKeyword(deptId, keyword).map {
             ProfessorDto.StudentInfo(
                 sno = it.sno,
                 sname = it.sname,
@@ -51,7 +50,7 @@ class ProfessorServiceImpl(
     // -------------------------------------------------- 교수 강의 시간표
     override fun getTimetable(pno: String, year: Int, semester: Int): List<ProfessorDto.TimetableEntry> {
         // 연·학기 정보가 테이블에 없다면 무시하고 pno 로 필터 (DDL 단순화)
-        return lectureRepo.findAll().filter { it.professor?.pno == pno }.map {
+        return lectureRepo.findByProfessor_Pno(pno).map {
             val (timeStr, room) = splitTimeRoom(it.lecTimeRoom)
             ProfessorDto.TimetableEntry(it.lecNo, it.lecName, timeStr, room)
         }
